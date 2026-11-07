@@ -374,4 +374,17 @@ test('optional second model is omitted and duplicate models are rejected', async
     duplicate.requests.some((request) => request.url === '/api/tests'),
     false,
   );
+  const tooMany = workbench();
+  tooMany.element('#test-form').elements.models.value = ['a', 'b', 'c', 'd'];
+  await tooMany.submit();
+  assert.equal(tooMany.requests.some((request) => request.url === '/api/tests'), false);
+});
+
+test('online evaluation uses one multi-select model picker', () => {
+  const page = workbench();
+  const html = page.element('#content').innerHTML;
+  assert.match(html, /id="model-picker"/);
+  assert.doesNotMatch(html, /ASR 模型 1|ASR 模型 2|不对比/);
+  assert.match(html, /name="models" form="test-form"/);
+  assert.match(html, /type="checkbox"/);
 });

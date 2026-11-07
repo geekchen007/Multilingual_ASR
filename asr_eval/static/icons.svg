@@ -7,4 +7,5 @@
   <symbol id="globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 6.5h14M5 17.5h14"/></symbol>
   <symbol id="arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
   <symbol id="logout" viewBox="0 0 24 24"><path d="M10 4H4v16h6m-1-8h12m-4-4 4 4-4 4"/></symbol>
+  <symbol id="chevron" viewBox="0 0 24 24"><path d="M14 6 8 12l6 6"/></symbol>
 </svg>

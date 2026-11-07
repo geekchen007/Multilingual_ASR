@@ -9,27 +9,37 @@
   </head>
   <body data-role="{{user.role}}">
     <a class="skip-link" href="#workspace">跳到主要内容</a>
-    <aside class="sidebar">
-      <a class="brand" href="#test"
-        ><span class="brand-icon"
-          ><svg aria-hidden="true"><use href="/static/icons.svg#wave" /></svg></span
-        ><span>多语言语音测评<small>WORLD VOICE LAB</small></span></a
-      >
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-toolbar">
+        <a class="brand" href="#test"
+          ><span class="brand-icon"
+            ><svg aria-hidden="true"><use href="/static/icons.svg#wave" /></svg></span
+          ><span class="brand-copy">多语言语音测评<small>WORLD VOICE LAB</small></span></a
+        ><button
+          type="button"
+          class="sidebar-toggle"
+          aria-expanded="true"
+          aria-controls="sidebar"
+          title="收起导航"
+        >
+          <svg aria-hidden="true"><use href="/static/icons.svg#chevron" /></svg>
+        </button>
+      </div>
       <div class="nav-label">WORKSPACE <span>测评工作台</span></div>
       <nav aria-label="主要导航">
-        <a href="#test" data-page="test"
+        <a href="#test" data-page="test" title="在线测评"
           ><svg aria-hidden="true"><use href="/static/icons.svg#wave" /></svg
           ><span>在线测评</span></a
         >
-        <a href="#history" data-page="history"
+        <a href="#history" data-page="history" title="测试历史"
           ><svg aria-hidden="true"><use href="/static/icons.svg#history" /></svg
           ><span>测试历史</span></a
         >
-        <a href="#cases" data-page="cases"
+        <a href="#cases" data-page="cases" title="Case 库"
           ><svg aria-hidden="true"><use href="/static/icons.svg#cases" /></svg
           ><span>Case 库</span></a
         >
-        <a href="#stats" data-page="stats"
+        <a href="#stats" data-page="stats" title="测评统计"
           ><svg aria-hidden="true"><use href="/static/icons.svg#chart" /></svg
           ><span>测评统计</span></a
         >

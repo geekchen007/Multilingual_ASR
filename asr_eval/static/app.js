@@ -16,6 +16,7 @@ let config,
   recordedFile,
   inlineTestId;
 let routeVersion = 0;
+let modelPickerBound = false;
 const statusNames = {
   awaiting_audio: '待补充音频',
   queued: '排队中',
@@ -66,14 +67,64 @@ function empty(title, description) {
   return `<div class="empty"><div class="orb">◎</div><h3>${title}</h3><p>${description}</p></div>`;
 }
 function modelChooser() {
-  const choices = (selected) =>
-    config.models
-      .map(
-        (model) =>
-          `<option value="${esc(model.id)}" ${model.id === selected ? 'selected' : ''}>${esc(model.name)}${model.demo ? '（演示）' : ''}</option>`,
-      )
-      .join('');
-  return `<label>ASR 模型 1<select name="models" form="test-form" required>${choices(config.models[0]?.id)}</select></label><label>ASR 模型 2 <span class="muted small">可选对比</span><select name="models" form="test-form"><option value="">不对比</option>${choices(config.models[1]?.id)}</select></label>`;
+  const defaults = new Set(
+    config.models.slice(0, Math.min(2, config.models.length)).map((model) => model.id),
+  );
+  const choices = config.models
+    .map((model) => {
+      const name = `${esc(model.name)}${model.demo ? '（演示）' : ''}`;
+      const checked = defaults.has(model.id) ? 'checked' : '';
+      return `<label class="model-option"><input type="checkbox" name="models" form="test-form" value="${esc(model.id)}" data-name="${name}" ${checked}><span>${name}</span></label>`;
+    })
+    .join('');
+  return `<div class="model-picker" id="model-picker"><span class="model-picker-label" id="model-picker-label">ASR 模型</span><button type="button" class="model-picker-toggle" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="model-picker-label"><span class="model-picker-summary">请选择模型</span><span class="model-picker-caret" aria-hidden="true"></span></button><div class="model-picker-menu" role="group" aria-label="选择 ASR 模型" hidden>${choices}<p class="model-picker-hint">最多选择 3 个，开始测评后同时送测。</p></div></div>`;
+}
+
+function bindModelPicker() {
+  const picker = $('#model-picker');
+  if (!picker || typeof picker.querySelectorAll !== 'function') return;
+  const toggle = picker.querySelector('.model-picker-toggle');
+  const menu = picker.querySelector('.model-picker-menu');
+  const summary = picker.querySelector('.model-picker-summary');
+  const boxes = () => [...picker.querySelectorAll('.model-option input')];
+  const refresh = () => {
+    const chosen = boxes().filter((box) => box.checked);
+    boxes().forEach((box) => {
+      box.disabled = !box.checked && chosen.length >= 3;
+    });
+    summary.textContent = chosen.length
+      ? chosen.map((box) => box.dataset.name).join('、')
+      : '请选择模型';
+    toggle.setAttribute('aria-expanded', menu.hidden ? 'false' : 'true');
+  };
+  toggle.onclick = () => {
+    menu.hidden = !menu.hidden;
+    refresh();
+  };
+  menu.onchange = refresh;
+  if (!modelPickerBound && typeof document.addEventListener === 'function') {
+    modelPickerBound = true;
+    document.addEventListener('click', (event) => {
+      const current = $('#model-picker');
+      if (!current || current.contains(event.target)) return;
+      const openMenu = current.querySelector('.model-picker-menu');
+      const openToggle = current.querySelector('.model-picker-toggle');
+      if (openMenu) openMenu.hidden = true;
+      if (openToggle) openToggle.setAttribute('aria-expanded', 'false');
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return;
+      const current = $('#model-picker');
+      if (!current) return;
+      const openMenu = current.querySelector('.model-picker-menu');
+      const openToggle = current.querySelector('.model-picker-toggle');
+      if (!openMenu || openMenu.hidden) return;
+      openMenu.hidden = true;
+      openToggle.setAttribute('aria-expanded', 'false');
+      openToggle.focus();
+    });
+  }
+  refresh();
 }
 
 function sampleInfo(sample) {
@@ -90,7 +141,7 @@ function testPage() {
     <div class="run-toolbar" role="group" aria-label="模型选择与开始测评">
       <div class="run-models">${modelChooser()}</div>
       <div class="run-actions"><button class="primary" id="submit-test" type="submit" form="test-form">开始测评 <svg aria-hidden="true"><use href="/static/icons.svg#arrow"/></svg></button><button type="button" id="view-results" class="hidden">查看本轮结果</button></div>
-      <p id="test-feedback" class="test-feedback" role="status" aria-live="polite">所选模型接收同一段音频，识别结果在本页并排展示。</p>
+      <p id="test-feedback" class="test-feedback" role="status" aria-live="polite">可多选 1—3 个模型。所选模型接收同一段音频，识别结果在本页并排展示。</p>
     </div>
     <div class="workbench-layout">
     <form id="test-form" class="evaluation-form">
@@ -144,6 +195,7 @@ function testPage() {
     .querySelectorAll('[name="sample_id"]')
     .forEach((input) => (input.onchange = selectSample));
   selectSample();
+  bindModelPicker();
   $('#view-results').onclick = () => {
     const target = $('#inline-results');
     target.scrollIntoView({
@@ -224,8 +276,11 @@ function testPage() {
       toast('请至少选择一个 ASR 模型');
       return;
     }
-    if (new Set(selectedModels).size !== selectedModels.length) {
-      toast('请选择两个不同的 ASR 模型');
+    if (
+      new Set(selectedModels).size !== selectedModels.length ||
+      selectedModels.length > 3
+    ) {
+      toast('请选择 1—3 个不同的 ASR 模型');
       return;
     }
     data.delete('models');
@@ -642,6 +697,32 @@ async function route() {
     if (version === routeVersion)
       content.innerHTML = empty('页面暂时无法加载', esc(error.message));
   }
+}
+const sidebarToggle = document.querySelector('.sidebar-toggle');
+if (sidebarToggle && document.body.classList) {
+  const sidebarKey = 'asr-sidebar';
+  const applySidebar = (collapsed) => {
+    document.body.classList.toggle('sidebar-collapsed', collapsed);
+    sidebarToggle.setAttribute('aria-expanded', String(!collapsed));
+    sidebarToggle.title = collapsed ? '展开导航' : '收起导航';
+    sidebarToggle.setAttribute('aria-label', sidebarToggle.title);
+  };
+  let sidebarCollapsed = false;
+  try {
+    sidebarCollapsed = localStorage.getItem(sidebarKey) === 'collapsed';
+  } catch {
+    sidebarCollapsed = false;
+  }
+  applySidebar(sidebarCollapsed);
+  sidebarToggle.addEventListener('click', () => {
+    sidebarCollapsed = !document.body.classList.contains('sidebar-collapsed');
+    applySidebar(sidebarCollapsed);
+    try {
+      localStorage.setItem(sidebarKey, sidebarCollapsed ? 'collapsed' : 'expanded');
+    } catch {
+      /* Keep the choice for this visit when storage is unavailable. */
+    }
+  });
 }
 api('/api/config')
   .then((value) => {
