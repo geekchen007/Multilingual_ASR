@@ -1,0 +1,10 @@
+# <type>(<scope>): <subject>
+#
+# type: feat | fix | docs | style | refactor | test | chore
+# scope: backend | ui | database | audio | providers | repo | samples | suite
+# subject: imperative, lowercase, no period, at most 50 characters
+#
+# Explain why the change is needed and how behavior changes.
+#
+# BREAKING CHANGE: describe the incompatible change and migration path.
+# Closes #<issue>

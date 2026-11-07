@@ -1,0 +1,12 @@
+{
+  "name": "multilingual-asr-eval-dev",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/test_frontend.cjs",
+    "format": "prettier --write asr_eval/static asr_eval/templates tests/*.cjs README.md config/*.example.json package.json .prettierrc.json",
+    "format:check": "prettier --check asr_eval/static asr_eval/templates tests/*.cjs README.md config/*.example.json package.json .prettierrc.json"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2"
+  }
+}

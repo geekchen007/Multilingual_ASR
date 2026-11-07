@@ -1,0 +1,9 @@
+.venv/
+.test-tmp/
+.pytest_cache/
+__pycache__/
+node_modules/
+data/
+samples/
+config/providers.json
+package-lock.json
