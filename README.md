@@ -75,16 +75,16 @@
 
 ### 分层职责
 
-| 层          | 关键文件                                      | 职责                                              |
-| ----------- | --------------------------------------------- | ------------------------------------------------- |
-| 交互层      | `asr_eval/templates/`、`asr_eval/static/`     | 登录页、工作台、轮询、录音、结果对比、投票和标注  |
-| HTTP 应用层 | `asr_eval/application.py`                     | Flask 工厂、Session / CSRF、角色权限、REST 路由   |
-| 命令与启动  | `app.py`、`asr_eval/cli.py`、`start.ps1`      | 兼容入口、账号创建、Waitress 启动、外部密钥加载   |
-| 音频处理    | `asr_eval/audio.py`                           | FFmpeg 解码、裁剪、单声道 16 kHz 归一化和 SHA-256 |
-| 任务执行    | `asr_eval/evaluation.py`                      | 多模型并行执行、独立结果状态、总体状态聚合        |
-| 模型适配    | `asr_eval/providers.py`                       | Qwen、Fun-ASR 和 OpenAI-compatible 协议适配       |
-| 数据访问    | `asr_eval/database.py`、`asr_eval/schema.sql` | SQLite 连接、建表、索引、账号和中断任务恢复       |
-| 配置与样本  | `config/`、`samples/`                         | 模型配置模板、公开音频、来源和许可                |
+| 层          | 关键文件                                         | 职责                                              |
+| ----------- | ------------------------------------------------ | ------------------------------------------------- |
+| 交互层      | `asr_eval/templates/`、`asr_eval/static/`        | 登录页、工作台、轮询、录音、结果对比、投票和标注  |
+| HTTP 应用层 | `asr_eval/application.py`                        | Flask 工厂、Session / CSRF、角色权限、REST 路由   |
+| 命令与启动  | `app.py`、`asr_eval/cli.py`、`scripts/start.ps1` | 兼容入口、账号创建、Waitress 启动、外部密钥加载   |
+| 音频处理    | `asr_eval/audio.py`                              | FFmpeg 解码、裁剪、单声道 16 kHz 归一化和 SHA-256 |
+| 任务执行    | `asr_eval/evaluation.py`                         | 多模型并行执行、独立结果状态、总体状态聚合        |
+| 模型适配    | `asr_eval/providers.py`                          | Qwen、Fun-ASR 和 OpenAI-compatible 协议适配       |
+| 数据访问    | `asr_eval/database.py`、`asr_eval/schema.sql`    | SQLite 连接、建表、索引、账号和中断任务恢复       |
+| 配置与样本  | `config/`、`samples/`                            | 模型配置模板、公开音频、来源和许可                |
 
 ### 核心数据流
 
@@ -126,14 +126,14 @@ winget install Gyan.FFmpeg
 
 ```powershell
 python -m venv .venv
-.venv\Scripts\python -m pip install -r requirements.txt
+.venv\Scripts\python -m pip install -r requirements/runtime.txt
 ```
 
 开发或运行测试时安装开发依赖：
 
 ```powershell
-.venv\Scripts\python -m pip install -r requirements-dev.txt
-npm ci
+.venv\Scripts\python -m pip install -r requirements/dev.txt
+npm --prefix tools/node ci
 ```
 
 ### 3. 配置真实模型
@@ -179,7 +179,7 @@ $env:DASHSCOPE_API_KEY = "你的百炼 API Key"
 推荐使用单进程 Waitress：
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\start.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start.ps1
 ```
 
 脚本会读取当前进程中的 Key，并尝试从项目上两级目录的
@@ -187,7 +187,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\start.ps1
 `API_LOGGER_API_KEY`。也可以显式指定密钥文件：
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\start.ps1 -EnvFile D:\path\to\keys.env
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start.ps1 -EnvFile D:\path\to\keys.env
 ```
 
 打开 **http://127.0.0.1:5080**。前台运行时使用 `Ctrl+C` 停止服务。
@@ -204,7 +204,7 @@ Linux / macOS 使用：
 
 ```bash
 python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m pip install -r requirements/runtime.txt
 export DASHSCOPE_API_KEY="你的百炼 API Key"
 .venv/bin/python -m waitress --call --listen=127.0.0.1:5080 --threads=12 asr_eval:create_app
 ```
@@ -276,7 +276,6 @@ export DASHSCOPE_API_KEY="你的百炼 API Key"
 ```text
 asr_eval/
 ├── app.py                          # 兼容 CLI / Waitress 入口
-├── start.ps1                       # Windows 启动与外部密钥加载
 ├── asr_eval/                       # Python 应用包
 │   ├── application.py              # Flask 工厂、认证与 HTTP 路由
 │   ├── audio.py                    # FFmpeg 裁剪与音频归一化
@@ -288,7 +287,12 @@ asr_eval/
 │   ├── cli.py                      # 账号管理与开发服务器命令
 │   ├── templates/                  # Jinja 页面
 │   └── static/                     # JavaScript、CSS、SVG
-├── config/                         # 模型配置及模板
+├── config/                         # 模型配置、Pytest 与 Ruff 配置
+├── requirements/                   # 运行与开发依赖清单
+├── scripts/                        # Windows 启动脚本
+├── tools/
+│   ├── git/                        # Huawei commit template
+│   └── node/                       # 前端测试与格式化工具链
 ├── samples/                        # 公开录音、来源记录及许可
 ├── tests/                          # Python 与前端交互回归测试
 ├── docs/                           # 规格、验证记录与架构图
@@ -300,7 +304,9 @@ asr_eval/
     └── backups/                    # 整理前的源码及数据库备份
 ```
 
-`data/logs/` 供本机后台启动使用；前台 `start.ps1` 的日志直接输出到终端。源码、配置模板和公开样本可纳入版本控制；`config/providers.json`、用户数据、密钥、虚拟环境和缓存均已忽略。
+根目录只保留 5 个文件：README、兼容入口、AGENTS 和两个 Git 根配置。其余工具与依赖按职责收进子目录。
+
+`data/logs/` 供本机后台启动使用；前台 `scripts/start.ps1` 的日志直接输出到终端。源码、配置模板和公开样本可纳入版本控制；`config/providers.json`、用户数据、密钥、虚拟环境和缓存均已忽略。
 
 ## 配置说明
 
@@ -333,18 +339,18 @@ Key 只放在 `key_env` 指定的服务器环境变量中。自动语种和混�
 运行检查：
 
 ```powershell
-.venv\Scripts\python -m ruff check .
-.venv\Scripts\python -m ruff format --check .
-.venv\Scripts\python -m pytest -q --basetemp=.test-tmp
-npm test
-npm run format:check
+.venv\Scripts\python -m ruff check --config config/ruff.toml .
+.venv\Scripts\python -m ruff format --config config/ruff.toml --check .
+.venv\Scripts\python -m pytest -c config/pytest.ini tests -q --basetemp=.test-tmp
+npm --prefix tools/node test
+npm --prefix tools/node run format:check
 ```
 
 统一格式化：
 
 ```powershell
-.venv\Scripts\python -m ruff format .
-npm run format
+.venv\Scripts\python -m ruff format --config config/ruff.toml .
+npm --prefix tools/node run format
 ```
 
 Python 使用 Ruff、4 空格与 88 字符行宽；前端使用 Prettier。格式化不会处理本机模型配置、用户数据或公开样本许可证。测试默认使用临时 SQLite、临时音频和模拟供应商，不消耗真实 API 用量。

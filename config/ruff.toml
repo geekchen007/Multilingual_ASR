@@ -1,0 +1,6 @@
+target-version = "py312"
+line-length = 88
+extend-exclude = [".test-tmp", "data", "node_modules", "tools/node/node_modules"]
+
+[lint]
+select = ["E4", "E7", "E9", "F", "I"]

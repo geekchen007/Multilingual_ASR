@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-This is a Python/Flask multilingual ASR evaluation platform. `app.py` contains the application factory, SQLite access, routes, background evaluation jobs, and account CLI. `providers.py` implements demo and HTTP transcription adapters. Browser templates live in `templates/`; JavaScript and CSS live in `static/`. Integration tests are in `tests/test_app.py`. Consult `SPEC.md`, `IMPLEMENTATION_PLAN.md`, and `docs/` for requirements; `VERIFICATION.md` records verification details.
+This is a Python/Flask multilingual ASR evaluation platform. The application package lives in `asr_eval/`; `app.py` is a small compatibility entry point. `asr_eval/providers.py` implements demo and HTTP transcription adapters. Browser templates and assets live under `asr_eval/templates/` and `asr_eval/static/`. Integration tests are in `tests/`. Consult `docs/` for requirements and verification history. Root tooling is grouped under `config/`, `requirements/`, `scripts/`, and `tools/`.
 
 ## Build, Test, and Development Commands
 
@@ -10,17 +10,17 @@ Use Python 3.12+ and install FFmpeg on `PATH`. No separate build step is require
 
 ```powershell
 python -m venv .venv
-.venv\Scripts\python -m pip install -r requirements-dev.txt
+.venv\Scripts\python -m pip install -r requirements/dev.txt
 .venv\Scripts\python app.py create-user --username developer --role research
-.venv\Scripts\python app.py serve
-.venv\Scripts\python -m pytest tests -q --basetemp=.test-tmp
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start.ps1
+.venv\Scripts\python -m pytest -c config/pytest.ini tests -q --basetemp=.test-tmp
 ```
 
 These commands create an environment, install runtime and test dependencies, create an account interactively, start the server at `http://127.0.0.1:5080`, and run tests. Check FFmpeg availability with `ffmpeg -version`.
 
 ## Coding Style & Naming Conventions
 
-Use four-space indentation and PEP 8 conventions. Use `snake_case` for Python functions and variables, `UPPER_CASE` for constants, and `test_` prefixes for tests. Prefer lines under 88 characters, grouped imports, context managers, and narrow exception handling. Add type hints and docstrings for new public interfaces. Match surrounding code and avoid unrelated formatting changes. No formatter or linter configuration is currently provided.
+Use four-space indentation and PEP 8 conventions. Use `snake_case` for Python functions and variables, `UPPER_CASE` for constants, and `test_` prefixes for tests. Prefer lines under 88 characters, grouped imports, context managers, and narrow exception handling. Add type hints and docstrings for new public interfaces. Match surrounding code and avoid unrelated formatting changes. Ruff configuration lives in `config/ruff.toml`; frontend formatting lives in `tools/node/`.
 
 ## Testing Guidelines
 

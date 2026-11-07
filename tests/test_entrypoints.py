@@ -20,6 +20,11 @@ def test_legacy_cli_help_does_not_initialize_data(tmp_path):
     assert list(tmp_path.iterdir()) == []
 
 
+def test_repository_root_keeps_at_most_ten_files():
+    root_files = [path for path in ROOT.iterdir() if path.is_file()]
+    assert len(root_files) <= 10
+
+
 def test_packaged_assets_work_from_another_directory(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("ASR_PROVIDERS", str(ROOT / "config/providers.example.json"))

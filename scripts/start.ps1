@@ -1,9 +1,10 @@
 param(
-    [string]$EnvFile = "$PSScriptRoot\..\..\.env\.env.dashscope"
+    [string]$EnvFile = "$PSScriptRoot\..\..\..\.env\.env.dashscope"
 )
 
 $ErrorActionPreference = 'Stop'
-Set-Location -LiteralPath $PSScriptRoot
+$ProjectRoot = Split-Path -Parent $PSScriptRoot
+Set-Location -LiteralPath $ProjectRoot
 
 if (Test-Path -LiteralPath $EnvFile) {
     foreach ($line in Get-Content -LiteralPath $EnvFile -Encoding UTF8) {
@@ -27,7 +28,7 @@ if (-not $env:DASHSCOPE_API_KEY) {
     throw 'Set DASHSCOPE_API_KEY or pass -EnvFile with the DashScope key file.'
 }
 if (-not (Test-Path -LiteralPath '.venv\Scripts\python.exe')) {
-    throw 'Create .venv and install requirements-dev.txt first; see README.md.'
+    throw 'Create .venv and install requirements/dev.txt first; see README.md.'
 }
 if (-not (Test-Path -LiteralPath 'config\providers.json')) {
     Copy-Item -LiteralPath 'config\providers.example.json' -Destination 'config\providers.json'
