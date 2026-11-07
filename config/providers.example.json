@@ -1,0 +1,26 @@
+[
+  {
+    "id": "qwen-asr",
+    "name": "Qwen3-ASR-Flash",
+    "kind": "qwen_asr",
+    "url": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+    "model": "qwen3-asr-flash",
+    "key_env": "DASHSCOPE_API_KEY",
+    "send_language": true,
+    "params": {
+      "asr_options": {
+        "enable_itn": false
+      }
+    }
+  },
+  {
+    "id": "fun-asr",
+    "name": "Fun-ASR-Flash",
+    "kind": "fun_asr",
+    "url": "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation",
+    "model": "fun-asr-flash-2026-06-15",
+    "key_env": "DASHSCOPE_API_KEY",
+    "send_language": false,
+    "params": {}
+  }
+]

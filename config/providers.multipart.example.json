@@ -1,0 +1,22 @@
+[
+  {
+    "id": "xiaoyi-candidate",
+    "name": "小艺候选版",
+    "kind": "openai_compatible",
+    "url": "http://127.0.0.1:8000/v1/audio/transcriptions",
+    "model": "YOUR_XIAOYI_MODEL_VERSION",
+    "key_env": "XIAOYI_API_KEY",
+    "send_language": true,
+    "params": {}
+  },
+  {
+    "id": "competitor",
+    "name": "竞品 API",
+    "kind": "openai_compatible",
+    "url": "https://YOUR_PROVIDER/v1/audio/transcriptions",
+    "model": "YOUR_COMPETITOR_MODEL",
+    "key_env": "COMPETITOR_API_KEY",
+    "send_language": false,
+    "params": {}
+  }
+]
