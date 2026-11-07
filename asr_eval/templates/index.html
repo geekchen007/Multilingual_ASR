@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="csrf-token" content="{{session.csrf}}" />
+    <title>多语言语音测评</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body data-role="{{user.role}}">
+    <a class="skip-link" href="#workspace">跳到主要内容</a>
+    <aside class="sidebar">
+      <a class="brand" href="#test"
+        ><span class="brand-icon"
+          ><svg aria-hidden="true"><use href="/static/icons.svg#wave" /></svg></span
+        ><span>多语言语音测评<small>WORLD VOICE LAB</small></span></a
+      >
+      <div class="nav-label">WORKSPACE <span>测评工作台</span></div>
+      <nav aria-label="主要导航">
+        <a href="#test" data-page="test"
+          ><svg aria-hidden="true"><use href="/static/icons.svg#wave" /></svg
+          ><span>在线测评</span></a
+        >
+        <a href="#history" data-page="history"
+          ><svg aria-hidden="true"><use href="/static/icons.svg#history" /></svg
+          ><span>测试历史</span></a
+        >
+        <a href="#cases" data-page="cases"
+          ><svg aria-hidden="true"><use href="/static/icons.svg#cases" /></svg
+          ><span>Case 库</span></a
+        >
+        <a href="#stats" data-page="stats"
+          ><svg aria-hidden="true"><use href="/static/icons.svg#chart" /></svg
+          ><span>测评统计</span></a
+        >
+      </nav>
+      <div class="sidebar-culture">
+        <svg aria-hidden="true"><use href="/static/icons.svg#globe" /></svg>
+        <p>不同语言，同样用心。</p>
+        <span lang="en">Every voice belongs.</span>
+        <div aria-hidden="true">文 &nbsp; A &nbsp; ع &nbsp; あ</div>
+      </div>
+      <div class="sidebar-footer">
+        <span class="avatar">{{user.name[0]}}</span>
+        <div class="user-info">
+          {{user.name}}<small
+            >{{'研发工作台' if user.role=='research' else 'Beta 测试用户'}}</small
+          >
+        </div>
+        <form action="/logout" method="post">
+          <input type="hidden" name="csrf" value="{{session.csrf}}" /><button
+            class="logout"
+            title="退出登录"
+            aria-label="退出登录"
+          >
+            <svg aria-hidden="true"><use href="/static/icons.svg#logout" /></svg>
+          </button>
+        </form>
+      </div>
+    </aside>
+    <div class="shell">
+      <header class="topbar">
+        <span
+          >语音实验室 <span class="breadcrumb-divider">/</span>
+          <b id="breadcrumb">在线测评</b></span
+        >
+        <div class="topbar-tools">
+          <span class="locale-label"
+            ><svg aria-hidden="true"><use href="/static/icons.svg#globe" /></svg>多语种
+            · 跨文化</span
+          ><span class="pill"
+            >{{'团队视图' if user.role=='research' else '个人视图'}}</span
+          >
+        </div>
+      </header>
+      <main id="workspace" tabindex="-1">
+        <div id="toast" role="status" aria-live="polite"></div>
+        <div id="content"></div>
+        <footer class="workspace-footer">
+          <span>WORLD VOICE LAB</span><span>从真实语音出发，让理解跨越语言。</span>
+        </footer>
+      </main>
+    </div>
+    <dialog id="annotation">
+      <form id="annotation-form">
+        <div class="row spread">
+          <h2>标记一个问题</h2>
+          <button type="button" class="icon" onclick="this.closest('dialog').close()">
+            ×
+          </button>
+        </div>
+        <p class="muted">保留原始反馈，研发会进一步复核。</p>
+        <label>关联结果<select name="result_id" id="annotation-result"></select></label>
+        <div class="grid two">
+          <label
+            >片段内起点（秒）<input
+              type="number"
+              name="start"
+              min="0"
+              step="0.01"
+              value="0"
+              required /></label
+          ><label
+            >片段内终点（秒）<input
+              type="number"
+              name="end"
+              min="0"
+              step="0.01"
+              required
+          /></label>
+        </div>
+        <label>问题类型 <span class="required">*</span></label>
+        <div id="type-options" class="chips"></div>
+        <label>选中的识别文本<textarea name="selected_text" rows="2"></textarea></label
+        ><label
+          >正确说法（可选）<textarea
+            name="reference"
+            rows="2"
+            placeholder="不会拼写也可以先提交问题"
+          ></textarea>
+        </label>
+        <div class="grid three">
+          <label>语言特征<select name="feature" id="feature-options"></select></label
+          ><label
+            >声音条件<select name="condition" id="condition-options"></select></label
+          ><label>影响程度<select name="impact" id="impact-options"></select></label>
+        </div>
+        <label>补充说明<textarea name="note" rows="2"></textarea></label
+        ><button class="primary wide">提交到 Case 库</button>
+      </form>
+    </dialog>
+    <dialog id="review">
+      <form id="review-form">
+        <div class="row spread">
+          <h2>研发复核</h2>
+          <button type="button" class="icon" onclick="this.closest('dialog').close()">
+            ×
+          </button>
+        </div>
+        <div id="review-original" class="inset"></div>
+        <input type="hidden" name="id" /><input type="hidden" name="revision" />
+        <div class="grid two">
+          <label>处理状态<select name="status" id="review-status"></select></label
+          ><label>负责人<input name="owner" maxlength="80" /></label>
+        </div>
+        <label
+          >研发归因<input
+            name="root_cause"
+            placeholder="如 ITN、声学识别、端点、待定位" /></label
+        ><label
+          >研发确认的参考文本<textarea
+            name="reference_reviewed"
+            rows="3"
+          ></textarea></label
+        ><label>主 Case ID（状态为重复时填写）<input name="duplicate_of" /></label
+        ><label class="check"
+          ><input
+            name="regression"
+            type="checkbox"
+          />加入正式回归集（真实测试且已有确认参考文本）</label
+        ><button class="primary wide">保存复核</button>
+      </form>
+    </dialog>
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>

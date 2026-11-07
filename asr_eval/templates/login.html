@@ -1,0 +1,70 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>登录 · 多语言语音测评</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body class="login">
+    <main class="login-layout">
+      <section class="login-story" aria-label="世界语言实验室">
+        <div class="brand">
+          <span class="brand-icon"
+            ><svg aria-hidden="true"><use href="/static/icons.svg#wave" /></svg></span
+          ><span>多语言语音测评<small>WORLD VOICE LAB</small></span>
+        </div>
+        <div class="login-story-copy">
+          <span class="eyebrow">LISTEN BEYOND BORDERS</span>
+          <h1>世界有万千声音，<br />每一种都值得<em>被听见。</em></h1>
+          <p>从熟悉的乡音，到交织的语言。<br />用真实语音，探索更准确的理解。</p>
+        </div>
+        <div class="login-greetings" aria-label="不同语言的问候">
+          <span lang="zh">你好</span><span lang="en">Hello</span
+          ><span lang="ar" dir="rtl">مرحبًا</span><span lang="ja">こんにちは</span
+          ><span lang="ms">Selamat datang</span><span lang="hi">नमस्ते</span>
+        </div>
+        <div class="login-story-footer">
+          <svg aria-hidden="true"><use href="/static/icons.svg#globe" /></svg
+          ><span>不同语言，同样用心。</span>
+        </div>
+      </section>
+      <section class="login-panel">
+        <div class="login-card">
+          <span class="eyebrow">YOUR VOICE, OUR NEXT DISCOVERY</span>
+          <h2>欢迎回到语音实验室</h2>
+          <p class="muted">登录工作台，开始一次新的聆听。</p>
+          <form method="post">
+            <input type="hidden" name="csrf" value="{{ session.csrf }}" /><label
+              >账号<input
+                name="username"
+                autocomplete="username"
+                placeholder="请输入你的账号"
+                required
+                autofocus /></label
+            ><label
+              >密码<input
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                placeholder="请输入密码"
+                required /></label
+            >{% if error %}
+            <p class="error" role="alert">{{error}}</p>
+            {% endif %}<button class="primary wide">
+              登录工作台
+              <svg aria-hidden="true"><use href="/static/icons.svg#arrow" /></svg>
+            </button>
+          </form>
+          <div class="login-note">
+            <span class="note-dot" aria-hidden="true"></span>
+            <p>首次使用？请联系平台管理员<br />创建 Beta 或研发账号。</p>
+          </div>
+        </div>
+        <p class="login-caption" lang="en">
+          A shared space for languages. A closer look at every voice.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
